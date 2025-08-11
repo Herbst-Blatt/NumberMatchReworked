@@ -1,11 +1,15 @@
 package com.example.numbermatchreworked
 
+import android.R
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.graphics.toColorInt
 
 class BoardView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
 
@@ -14,16 +18,25 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     private var curMaxHeight = 0F
     private var cellSizePixels = 0F
 
+    private var selectedRow = 0
+    private var selectedCol = 0
+
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
-        strokeWidth = 4F
+        strokeWidth = 5F
     }
     private val thinLinePaint = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
         strokeWidth = 3F
     }
+
+    private val selectedCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = "#C9A0DC".toColorInt()
+    }
+
 
 
     override fun onDraw(canvas: Canvas) {
@@ -36,8 +49,8 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             curMaxHeight,
             thickLinePaint
         )
-
         drawCells(canvas)
+        fillCells(canvas)
     }
 
     private fun drawCells(canvas: Canvas) {
@@ -61,9 +74,46 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         }
     }
 
-    // ensure square board - which I don't want
-//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//        setMeasuredDimension(width, (cellSizePixels*rowCount).toInt())
-//    }
+    private fun fillCells(canvas: Canvas) {
+        if (selectedCol == -1 || selectedRow == -1 ) return
+
+        for (c in 0 until numbersPerRow)
+            for(r in 0 until rowCount)
+                if (r == selectedRow && c == selectedCol)
+                    fillCell(canvas, r, c, selectedCellPaint)
+    }
+
+    private fun fillCell(canvas: Canvas, row: Int, col: Int, paint: Paint) {
+        canvas.drawRect(
+            col * cellSizePixels,
+            row * cellSizePixels,
+            (col + 1) * cellSizePixels,
+            (row + 1) * cellSizePixels,
+            paint
+        )
+        canvas.drawRect(
+            col * cellSizePixels,
+            row * cellSizePixels,
+            (col + 1) * cellSizePixels,
+            (row + 1) * cellSizePixels,
+            thinLinePaint
+        )
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                handleTouchEvent(event.x, event.y)
+                true
+            }
+            else -> false
+        }
+    }
+
+    private fun handleTouchEvent(x: Float, y: Float) {
+        selectedCol = (x/cellSizePixels).toInt()
+        selectedRow = (y/cellSizePixels).toInt()
+        invalidate()
+    }
+    
 }
