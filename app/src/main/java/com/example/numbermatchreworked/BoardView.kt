@@ -133,13 +133,13 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
     private fun writeNumbers(canvas: Canvas, c: Int, r: Int) {
         var paint: Paint
-        if (!gameSolvedArray[r*numbersPerRow+c]){
+        if (!gameSolvedArray[position(r, c)]){
             paint = textPaint
         } else {
             paint = solvedTextPaint
         }
         canvas.drawText(
-            gameNumberArray[c + r * numbersPerRow].toString(),
+            gameNumberArray[position(r,c)].toString(),
             c * cellSizePixels + (cellSizePixels - fontSize),
             (r + 1) * cellSizePixels - (cellSizePixels - fontSize),
             paint
@@ -208,13 +208,32 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     private fun handleTouchEvent(x: Float, y: Float) {
         prevSelectedCol = selectedCol
         prevSelectedRow = selectedRow
+        prevSelectedNr = selectedNr
         selectedCol = (x/cellSizePixels).toInt()
         selectedRow = (y/cellSizePixels).toInt()
-
-        prevSelectedNr = selectedNr
-        selectedNr = gameNumberArray[selectedRow * numbersPerRow + selectedCol]
-
+        if (checkValidSelectedCell()){
+            selectedNr = gameNumberArray[position(selectedRow, selectedCol)]
+        } else {
+            selectedRow = -1
+            selectedCol = -1
+        }
         invalidate()
+
+    }
+
+    /**
+     * Checks if selected cell is 'valid' - if it is part of the game or empty
+     * returns:
+     * - true: clicked cell contains number
+     * - false: clicked cell is empty
+     */
+    private fun checkValidSelectedCell(): Boolean {
+        if (position(selectedRow, selectedCol) >= startNumberCount ) return false
+        return true
+    }
+
+    private fun position(row: Int, col: Int): Int{
+        return row * numbersPerRow + col
     }
 
 
@@ -236,11 +255,10 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         return 1 // wrong match
     }
 
-    private fun checkDiagonalMatch(): Boolean {
-        return false
-    }
 
     private fun checkHorizontalMatch(): Boolean {
+        if (prevSelectedRow!= selectedRow) return false
+        if(checkBetweenHor()) return true
         return false
     }
 
@@ -253,11 +271,51 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     private fun checkBetweenVer(): Boolean {
         val lower = min(prevSelectedRow, selectedRow) +1
         val higher = max(prevSelectedRow, selectedRow) -1
-        var cur: Int
         for (i in lower until higher) {
-            cur = i * numbersPerRow + selectedCol
-            if (!gameSolvedArray[cur]) return false
+            if (!gameSolvedArray[position(i,selectedCol)]) return false
         }
         return true
+    }
+
+    private fun checkBetweenHor(): Boolean {
+        val lower = min(prevSelectedCol, selectedCol) +1
+        val higher = max(prevSelectedCol, selectedCol) -1
+        for (i in lower until higher) {
+            if (!gameSolvedArray[position(selectedRow,i)]) return false
+        }
+        return true
+    }
+    private fun checkDiagonalMatch(): Boolean {
+        val lowerRow = min(prevSelectedRow, selectedRow) +1
+        val higherRow = max(prevSelectedRow, selectedRow) -1
+        val lowerCol = min(prevSelectedCol, selectedCol) +1
+        val higherCol = max(prevSelectedCol, selectedCol) -1
+
+        if (lowerRow - higherRow != lowerCol - higherCol)
+            return false // not diagonal
+
+        when (checkDiaDirection()) {
+            0 -> {
+                for( i in 0 until lowerRow - higherRow)
+                    if (!gameSolvedArray[position(lowerRow +i, lowerCol +i)]) return false
+            }
+            1 -> {
+                for( i in 0 until lowerRow - higherRow)
+                    if (!gameSolvedArray[position(lowerRow +i, lowerCol -i)]) return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * return:
+     * - 0: up diagonal
+     * - 1: down diagonal
+     */
+    private fun checkDiaDirection(): Int {
+        return if (prevSelectedRow - selectedRow < 0 && prevSelectedCol - selectedCol < 0 ||
+            prevSelectedRow - selectedRow > 0 && prevSelectedCol - selectedCol > 0)
+            0
+        else 1
     }
 }
