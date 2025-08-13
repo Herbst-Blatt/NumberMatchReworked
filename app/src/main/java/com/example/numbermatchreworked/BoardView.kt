@@ -158,23 +158,19 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
                         fillCell(canvas, selectedRow,selectedCol, correctSelectionPaint)
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, correctSelectionPaint)
+                        unselectCells()
                     }
                     1 -> { // CASE: wrong combo
                         fillCell(canvas, selectedRow,selectedCol, wrongSelectionPaint)
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, wrongSelectionPaint)
+                        unselectCells()
                     }
                     2 -> { // CASE: selected first cell
                         fillCell(canvas, r, c, selectedCellPaint)
                     }
                 }
-
             } else { // CASE: unselect current cell
-                selectedCol = -1
-                selectedRow = -1
-                prevSelectedCol = -1
-                prevSelectedRow = -1
-                prevSelectedNr = -1
-                selectedNr = -1
+                unselectCells()
             }
     }
 
@@ -219,6 +215,14 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         }
         invalidate()
 
+    }
+    private fun unselectCells() {
+        selectedCol = -1
+        selectedRow = -1
+        prevSelectedCol = -1
+        prevSelectedRow = -1
+        prevSelectedNr = -1
+        selectedNr = -1
     }
 
     /**
@@ -296,12 +300,15 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
         when (checkDiaDirection()) {
             0 -> {
-                for( i in 0 until lowerRow - higherRow)
+                for( i in 0 until lowerRow - higherRow -1)
                     if (!gameSolvedArray[position(lowerRow +i, lowerCol +i)]) return false
             }
             1 -> {
-                for( i in 0 until lowerRow - higherRow)
+                for( i in 0 until lowerRow - higherRow -1)
                     if (!gameSolvedArray[position(lowerRow +i, lowerCol -i)]) return false
+            }
+            else -> {
+                print("Error")
             }
         }
         return true
