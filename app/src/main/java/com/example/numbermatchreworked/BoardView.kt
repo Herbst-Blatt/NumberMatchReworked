@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.toColorInt
@@ -123,15 +124,20 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
 
     private fun fillCells(canvas: Canvas) {
-        for (r in 0 until 4)
-            for(c in 0 until numbersPerRow) {
+        var rows: Int = startNumberCount / numbersPerRow
+        if (startNumberCount % numbersPerRow != 0)
+            rows += 1
 
-                highlightSelectedCell(r, c, canvas)
-                writeNumbers(canvas, c, r)
+        for (r in 0 until rows)
+            for(c in 0 until numbersPerRow) {
+                if (position(r,c) < startNumberCount -1){
+                    highlightSelectedCell(r, c, canvas)
+                    writeNumber(canvas, c, r)
+                }
             }
     }
 
-    private fun writeNumbers(canvas: Canvas, c: Int, r: Int) {
+    private fun writeNumber(canvas: Canvas, c: Int, r: Int) {
         val paint: Paint = if (gameSolvedArray[position(r, c)]){
             solvedTextPaint
         } else {
@@ -157,12 +163,13 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                         gameSolvedArray[selectedRow*numbersPerRow + selectedCol] = true
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, correctSelectionPaint)
                         fillCell(canvas, selectedRow,selectedCol, correctSelectionPaint)
-
+                        rewritePreviousText(canvas,solvedTextPaint)
                         unselectCells()
                     }
                     1 -> { // CASE: wrong combo
                         fillCell(canvas, selectedRow,selectedCol, wrongSelectionPaint)
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, wrongSelectionPaint)
+                        rewritePreviousText(canvas, textPaint)
                         unselectCells()
                     }
                     2 -> { // CASE: selected first cell
@@ -174,6 +181,14 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             }
     }
 
+    private fun rewritePreviousText(canvas: Canvas, paint: Paint){
+        canvas.drawText(
+            gameNumberArray[position(prevSelectedRow,prevSelectedCol)].toString(),
+            prevSelectedCol * cellSizePixels + (cellSizePixels - fontSize),
+            (prevSelectedRow + 1) * cellSizePixels - (cellSizePixels - fontSize),
+            paint
+        )
+    }
     private fun fillCell(canvas: Canvas, row: Int, col: Int, paint: Paint) {
         canvas.drawRect( // fill cell
             col * cellSizePixels,
