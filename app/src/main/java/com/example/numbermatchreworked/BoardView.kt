@@ -12,13 +12,14 @@ import androidx.core.graphics.toColorInt
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 class BoardView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
 
     private var numbersPerRow = 10
     private var rowCount = 10
-    private var startNumberCount = 47
+    private var startNumberCount = -1
     private var fontSize = 75
 
     private var curMaxHeight = 0F
@@ -92,12 +93,14 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun fillGameNumberArray() {
-        if (gameNumberArray.isEmpty())
+        if (gameNumberArray.isEmpty()){
+            startNumberCount = Random.nextInt(30,50)
+            print(startNumberCount.toString())
             for (i in 1 until startNumberCount){
                 gameNumberArray += Random.nextInt(1,9)
                 gameSolvedArray += false
             }
-
+        }
     }
 
     private fun drawCells(canvas: Canvas) {
