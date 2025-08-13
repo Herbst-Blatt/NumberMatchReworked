@@ -69,7 +69,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
     private val solvedTextPaint = Paint().apply {
         style = Paint.Style.FILL
-        color = Color.GRAY
+        color = Color.LTGRAY
         textSize = fontSize.toFloat()
     }
 
@@ -132,12 +132,12 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun writeNumbers(canvas: Canvas, c: Int, r: Int) {
-        var paint: Paint
-        if (!gameSolvedArray[position(r, c)]){
-            paint = textPaint
+        val paint: Paint = if (gameSolvedArray[position(r, c)]){
+            solvedTextPaint
         } else {
-            paint = solvedTextPaint
+            textPaint
         }
+
         canvas.drawText(
             gameNumberArray[position(r,c)].toString(),
             c * cellSizePixels + (cellSizePixels - fontSize),
@@ -155,9 +155,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                     0 -> { // CASE: correct!
                         gameSolvedArray[prevSelectedRow*numbersPerRow + prevSelectedCol] = true
                         gameSolvedArray[selectedRow*numbersPerRow + selectedCol] = true
-
-                        fillCell(canvas, selectedRow,selectedCol, correctSelectionPaint)
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, correctSelectionPaint)
+                        fillCell(canvas, selectedRow,selectedCol, correctSelectionPaint)
+
                         unselectCells()
                     }
                     1 -> { // CASE: wrong combo
@@ -210,8 +210,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         if (checkValidSelectedCell()){
             selectedNr = gameNumberArray[position(selectedRow, selectedCol)]
         } else {
-            selectedRow = -1
-            selectedCol = -1
+            unselectCells()
         }
         invalidate()
 
@@ -233,6 +232,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
      */
     private fun checkValidSelectedCell(): Boolean {
         if (position(selectedRow, selectedCol) >= startNumberCount ) return false
+        if (selectedRow != -1 && gameSolvedArray[position(selectedRow, selectedCol)]) return false
         return true
     }
 
