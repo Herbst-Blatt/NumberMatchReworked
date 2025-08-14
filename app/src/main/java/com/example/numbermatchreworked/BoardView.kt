@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.toColorInt
@@ -33,6 +32,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
     private var gameNumberArray = arrayListOf<Int>()
     private var gameSolvedArray = arrayListOf<Boolean>()
+    private var gameBlockArray = arrayListOf<Boolean>()
 
     /**
      * This variable is used to identify how the correct solution was done and allows to draw the correct line
@@ -90,6 +90,12 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         textSize = fontSize.toFloat()
     }
 
+    private val wrongTextPaint = Paint().apply {
+        style = Paint.Style.FILL
+        color = "#BA3D25".toColorInt()
+        textSize = fontSize.toFloat()
+    }
+
 
 
     override fun onDraw(canvas: Canvas) {
@@ -102,7 +108,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             curMaxHeight,
             thickLinePaint
         )
-        drawCells(canvas)
+        drawCellsOutlines(canvas)
         fillGameNumberArray()
         fillCells(canvas)
     }
@@ -114,11 +120,12 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             for (i in 1 until startNumberCount){
                 gameNumberArray += Random.nextInt(1,9)
                 gameSolvedArray += false
+                gameBlockArray += false
             }
         }
     }
 
-    private fun drawCells(canvas: Canvas) {
+    private fun drawCellsOutlines(canvas: Canvas) {
         for (i in 1 until numbersPerRow) {
             canvas.drawLine(
                 i * cellSizePixels,
@@ -156,7 +163,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun writeNumber(canvas: Canvas, c: Int, r: Int) {
-
+        if (gameBlockArray[position(r,c)]) {
+            return
+        }
         val paint: Paint = if (gameSolvedArray[position(r, c)]){
             solvedTextPaint
         } else {
@@ -176,7 +185,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         if (selectedCol == -1 || selectedRow == -1 ) return
         if (r == selectedRow && c == selectedCol) // only selected cell
             if (selectedCol != prevSelectedCol || selectedRow != prevSelectedRow) { // only if selected cell isn't already selected
-                when (checkCorrectSelection(canvas)) {
+                when (checkCorrectSelection()) {
                     0 -> { // CASE: correct!
                         gameSolvedArray[prevSelectedRow*numbersPerRow + prevSelectedCol] = true
                         gameSolvedArray[selectedRow*numbersPerRow + selectedCol] = true
@@ -196,6 +205,8 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, wrongSelectionPaint)
                         rewritePreviousText(canvas, textPaint)
                         unselectCells()
+                        drawBlocks(canvas)
+
                     }
                     2 -> { // CASE: selected first cell
                         fillCell(canvas, r, c, selectedCellPaint)
@@ -204,6 +215,23 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             } else { // CASE: unselect current cell
                 unselectCells()
             }
+    }
+
+    private fun drawBlocks(canvas: Canvas){
+        var position = 0
+        for (i in gameBlockArray) {
+            if (i){
+                canvas.drawText(
+                    gameNumberArray[position].toString(),
+                    (position % numbersPerRow) * cellSizePixels + (cellSizePixels - fontSize), // col
+                    ((position / numbersPerRow).toInt() + 1) * cellSizePixels - (cellSizePixels - fontSize), // row
+                    wrongTextPaint
+                )
+                gameBlockArray[position] = false
+            }
+            position++
+        }
+
     }
 
     private fun rewritePreviousText(canvas: Canvas, paint: Paint){
@@ -283,12 +311,13 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
 
     /**
+     * Checks if there are two selected cells and if the two selected cells are a correct & valid combination
     return:
      - 0 -> correct Match!
      - 1 -> wrong match
      - 2 -> only one selection, nothing to check yet
      */
-    private fun checkCorrectSelection(canvas: Canvas):Int {
+    private fun checkCorrectSelection():Int {
         if (prevSelectedNr == -1 ) return 2//first selection
 
         if (prevSelectedNr == selectedNr || prevSelectedNr + selectedNr == 10) {
@@ -311,8 +340,8 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun drawOverflowSolutionLine(canvas: Canvas){
-        var higherRow = min(selectedRow, prevSelectedRow)
-        var lowerRow = max(selectedRow,prevSelectedRow)
+        val higherRow = min(selectedRow, prevSelectedRow)
+        val lowerRow = max(selectedRow,prevSelectedRow)
         var higherCol: Int
         var lowerCol: Int
         if (higherRow == selectedRow){
@@ -350,6 +379,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             typeBasicMatch = true
             return true
         }
+
         return false
     }
 
@@ -360,32 +390,42 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             typeBasicMatch = true
             return true
         }
-
         return false
     }
 
     private fun checkBetweenVer(): Boolean {
-        val lower = min(prevSelectedRow, selectedRow) +1
-        val higher = max(prevSelectedRow, selectedRow) -1
-        for (i in lower until higher) {
-            if (!gameSolvedArray[position(i,selectedCol)]) return false
+        val lowerRow = min(prevSelectedRow, selectedRow) +1
+        val higherRow = max(prevSelectedRow, selectedRow)
+        var solution = true
+
+        for (i in lowerRow until higherRow) {
+            if (!gameSolvedArray[position(i,selectedCol)]) {
+                solution= false
+                gameBlockArray[position(i,selectedCol)] = true
+            }
         }
-        return true
+        return solution
     }
 
     private fun checkBetweenHor(): Boolean {
-        val lower = min(prevSelectedCol, selectedCol) +1
-        val higher = max(prevSelectedCol, selectedCol) -1
-        for (i in lower until higher) {
-            if (!gameSolvedArray[position(selectedRow,i)]) return false
+        val lowerCol = min(prevSelectedCol, selectedCol) +1
+        val higherCol = max(prevSelectedCol, selectedCol)
+        var solution = true
+
+        for (i in lowerCol until higherCol) {
+            if (!gameSolvedArray[position(selectedRow,i)]) {
+                gameBlockArray[position(selectedRow,i)] = true
+                solution = false
+            }
         }
-        return true
+
+        return solution
     }
     private fun checkDiagonalMatch(): Boolean {
         val lowerRow = min(prevSelectedRow, selectedRow) +1
-        val higherRow = max(prevSelectedRow, selectedRow) -1
+        val higherRow = max(prevSelectedRow, selectedRow)
         val lowerCol = min(prevSelectedCol, selectedCol) +1
-        val higherCol = max(prevSelectedCol, selectedCol) -1
+        val higherCol = max(prevSelectedCol, selectedCol)
 
         if (lowerRow - higherRow != lowerCol - higherCol)
             return false // not diagonal
