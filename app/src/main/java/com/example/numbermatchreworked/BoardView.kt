@@ -153,13 +153,15 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         if (startNumberCount % numbersPerRow != 0)
             rows += 1
 
-        for (r in 0 until rows)
+        for (r in 0 until rows){
             for(c in 0 until numbersPerRow) {
                 if (position(r,c) < startNumberCount -1){
                     highlightSelectedCell(r, c, canvas)
                     writeNumber(canvas, c, r)
                 }
             }
+        }
+        drawBlocks(canvas)
     }
 
     private fun writeNumber(canvas: Canvas, c: Int, r: Int) {
@@ -205,8 +207,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, wrongSelectionPaint)
                         rewritePreviousText(canvas, textPaint)
                         unselectCells()
-                        drawBlocks(canvas)
-
+                        //drawBlocks(canvas)
                     }
                     2 -> { // CASE: selected first cell
                         fillCell(canvas, r, c, selectedCellPaint)
