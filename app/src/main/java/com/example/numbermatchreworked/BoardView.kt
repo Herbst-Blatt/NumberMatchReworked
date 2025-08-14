@@ -12,7 +12,6 @@ import androidx.core.graphics.toColorInt
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
-import kotlin.random.nextInt
 
 
 class BoardView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
@@ -35,6 +34,13 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     private var gameNumberArray = arrayListOf<Int>()
     private var gameSolvedArray = arrayListOf<Boolean>()
 
+    /**
+     * This variable is used to identify how the correct solution was done and allows to draw the correct line
+     * - true -> basic line, horizontal, vertical or diagonal
+     * - false -> line overflow
+     */
+    private var typeBasicMatch : Boolean= true
+
 
 
     private val thickLinePaint = Paint().apply {
@@ -51,6 +57,15 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     private val selectedCellPaint = Paint().apply {
         style = Paint.Style.FILL
         color = "#C9A0DC".toColorInt()
+    }
+
+    private val solutionLinePaint = Paint().apply {
+        style = Paint.Style.STROKE
+        color = Color.BLACK
+        strokeWidth = 15F
+        strokeJoin = Paint.Join.ROUND
+        strokeCap = Paint.Cap.ROUND
+        isAntiAlias = true
     }
 
     private val wrongSelectionPaint = Paint().apply {
@@ -141,6 +156,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun writeNumber(canvas: Canvas, c: Int, r: Int) {
+
         val paint: Paint = if (gameSolvedArray[position(r, c)]){
             solvedTextPaint
         } else {
@@ -160,13 +176,19 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         if (selectedCol == -1 || selectedRow == -1 ) return
         if (r == selectedRow && c == selectedCol) // only selected cell
             if (selectedCol != prevSelectedCol || selectedRow != prevSelectedRow) { // only if selected cell isn't already selected
-                when (checkCorrectSelection()) {
+                when (checkCorrectSelection(canvas)) {
                     0 -> { // CASE: correct!
                         gameSolvedArray[prevSelectedRow*numbersPerRow + prevSelectedCol] = true
                         gameSolvedArray[selectedRow*numbersPerRow + selectedCol] = true
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, correctSelectionPaint)
                         fillCell(canvas, selectedRow,selectedCol, correctSelectionPaint)
                         rewritePreviousText(canvas,solvedTextPaint)
+
+                        if (typeBasicMatch){
+                            drawBasicSolutionLine(canvas)
+                        } else {
+                            drawOverflowSolutionLine(canvas)
+                        }
                         unselectCells()
                     }
                     1 -> { // CASE: wrong combo
@@ -266,27 +288,79 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
      - 1 -> wrong match
      - 2 -> only one selection, nothing to check yet
      */
-    private fun checkCorrectSelection():Int {
+    private fun checkCorrectSelection(canvas: Canvas):Int {
         if (prevSelectedNr == -1 ) return 2//first selection
 
         if (prevSelectedNr == selectedNr || prevSelectedNr + selectedNr == 10) {
             if (checkDiagonalMatch()) return 0
             if (checkHorizontalMatch()) return 0
             if (checkVerticalMatch()) return 0
-        }
+            if (checkOverrun()) return 0
+        } //correct match
+
         return 1 // wrong match
     }
 
+    private fun drawBasicSolutionLine(canvas: Canvas){
+        canvas.drawLine(
+            ((prevSelectedCol +0.5F) * cellSizePixels),
+            ((prevSelectedRow.toFloat()+0.5F) * cellSizePixels),
+            ((selectedCol +0.5F) * cellSizePixels),
+            ((selectedRow +0.5F) * cellSizePixels),
+            solutionLinePaint)
+    }
+
+    private fun drawOverflowSolutionLine(canvas: Canvas){
+        var higherRow = min(selectedRow, prevSelectedRow)
+        var lowerRow = max(selectedRow,prevSelectedRow)
+        var higherCol: Int
+        var lowerCol: Int
+        if (higherRow == selectedRow){
+            higherCol = selectedCol
+            lowerCol = prevSelectedCol
+        }
+        else {
+            higherCol = prevSelectedCol
+            lowerCol = selectedCol
+        }
+
+        canvas.drawLine(
+            ( higherCol +0.5F) * cellSizePixels,
+            ( higherRow +0.5F) * cellSizePixels,
+            ( numbersPerRow +1) * cellSizePixels,
+            ( higherRow +0.5F) * cellSizePixels,
+            solutionLinePaint
+        )
+
+        canvas.drawLine(
+            0F,
+            (lowerRow + 0.5F) * cellSizePixels,
+            (lowerCol + 0.5F) * cellSizePixels,
+            (lowerRow + 0.5F) * cellSizePixels,
+            solutionLinePaint
+        )
+
+
+    }
 
     private fun checkHorizontalMatch(): Boolean {
         if (prevSelectedRow!= selectedRow) return false
-        if(checkBetweenHor()) return true
+
+        if(checkBetweenHor()) {
+            typeBasicMatch = true
+            return true
+        }
         return false
     }
 
     private fun checkVerticalMatch(): Boolean {
         if (prevSelectedCol != selectedCol) return false
-        if (checkBetweenVer()) return true
+
+        if (checkBetweenVer()) {
+            typeBasicMatch = true
+            return true
+        }
+
         return false
     }
 
@@ -329,7 +403,33 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                 print("Error")
             }
         }
+
+        typeBasicMatch = true
         return true
+    }
+
+    private fun checkOverrun(): Boolean {
+        if (prevSelectedRow - selectedRow == 1){
+            for (i in selectedCol+1 until numbersPerRow){
+                if (!gameSolvedArray[position(selectedRow,i)]) return false
+            }
+            for (i in 0 until prevSelectedCol){
+                if (!gameSolvedArray[position(prevSelectedRow,i)]) return false
+            }
+            typeBasicMatch = false
+            return true
+
+        } else if (selectedRow - prevSelectedRow == 1) {
+            for (i in prevSelectedCol+1 until numbersPerRow){
+                if (!gameSolvedArray[position(prevSelectedRow,i)]) return false
+            }
+            for (i in 0 until selectedCol){
+                if (!gameSolvedArray[position(selectedRow,i)]) return false
+            }
+            typeBasicMatch = false
+            return true
+        }
+        return false
     }
 
     /**
