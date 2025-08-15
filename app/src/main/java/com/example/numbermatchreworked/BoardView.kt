@@ -162,6 +162,11 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             }
         }
         drawBlocks(canvas)
+        if (typeBasicMatch){
+            drawBasicSolutionLine(canvas)
+        } else {
+            drawOverflowSolutionLine(canvas)
+        }
     }
 
     private fun writeNumber(canvas: Canvas, c: Int, r: Int) {
@@ -194,12 +199,6 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, correctSelectionPaint)
                         fillCell(canvas, selectedRow,selectedCol, correctSelectionPaint)
                         rewritePreviousText(canvas,solvedTextPaint)
-
-                        if (typeBasicMatch){
-                            drawBasicSolutionLine(canvas)
-                        } else {
-                            drawOverflowSolutionLine(canvas)
-                        }
                         unselectCells()
                     }
                     1 -> { // CASE: wrong combo
@@ -207,7 +206,6 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                         fillCell(canvas, prevSelectedRow,prevSelectedCol, wrongSelectionPaint)
                         rewritePreviousText(canvas, textPaint)
                         unselectCells()
-                        //drawBlocks(canvas)
                     }
                     2 -> { // CASE: selected first cell
                         fillCell(canvas, r, c, selectedCellPaint)
