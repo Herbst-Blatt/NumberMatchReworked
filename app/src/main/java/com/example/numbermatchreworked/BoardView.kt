@@ -99,11 +99,18 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         textSize = fontSize.toFloat()
     }
 
+    private fun onCreate(){
+        fillGameNumberArray()
+    }
 
     /**
      * Draws the canvas new after each user interaction
      */
     override fun onDraw(canvas: Canvas) {
+        if (gameNumberArray.isEmpty()){
+            onCreate()
+        }
+
         cellSizePixels = (width / numbersPerRow).toFloat()
         curMaxHeight = cellSizePixels * rowCount
         canvas.drawRect(
@@ -115,7 +122,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         )
 
         drawCellsOutlines(canvas)
-        fillGameNumberArray()
+
         fillCells(canvas)
         checkRemoveRow()
     }
@@ -127,14 +134,12 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
      * TODO: adjust randomiser to be less repetitive
      */
     private fun fillGameNumberArray() {
-        if (gameNumberArray.isEmpty()){
-            numberCount = Random.nextInt(30,50)
+        numberCount = Random.nextInt(30, 50)
 
-            for (i in 0 until numberCount){
-                gameNumberArray += Random.nextInt(1,9)
-                gameSolvedArray += false
-                gameBlockArray += false
-            }
+        for (i in 0 until numberCount) {
+            gameNumberArray += Random.nextInt(1, 9)
+            gameSolvedArray += false
+            gameBlockArray += false
         }
     }
 
@@ -205,6 +210,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         val paint: Paint = if (gameSolvedArray[position(r, c)]){
             solvedTextPaint
         } else {
+            
             textPaint
         }
 
@@ -430,8 +436,6 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             (lowerRow + 0.5F) * cellSizePixels,
             solutionLinePaint
         )
-
-
     }
 
     private fun checkHorizontalMatch(): Boolean {
@@ -479,9 +483,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                 solution = false
             }
         }
-
         return solution
     }
+
     private fun checkDiagonalMatch(): Boolean {
         val lowerRow = min(prevSelectedRow, selectedRow) +1
         val higherRow = max(prevSelectedRow, selectedRow)
@@ -580,6 +584,16 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                 gameSolvedArray.removeAt(position)
                 numberCount -=1
             }
+        }
+        checkWin()
+    }
+
+    /**
+     * Checks if the level was won
+     */
+    private fun checkWin() {
+        if (numberCount == 0){
+            Log.d("TAG", "WIN")
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.numbermatchreworked
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.ui.AppBarConfiguration
 import com.example.numbermatchreworked.databinding.ActivityMainBinding
 
