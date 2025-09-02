@@ -487,9 +487,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun checkDiagonalMatch(): Boolean {
-        val lowerRow = min(prevSelectedRow, selectedRow) +1
+        val lowerRow = min(prevSelectedRow, selectedRow)+1
         val higherRow = max(prevSelectedRow, selectedRow)
-        val lowerCol = min(prevSelectedCol, selectedCol) +1
+        val lowerCol = min(prevSelectedCol, selectedCol)+1
         val higherCol = max(prevSelectedCol, selectedCol)
 
         if (lowerRow - higherRow != lowerCol - higherCol)
@@ -497,11 +497,13 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
         when (checkDiaDirection()) {
             0 -> {
-                for( i in 0 until lowerRow - higherRow -1)
+                for( i in 0 until   higherRow - lowerRow){
                     if (!gameSolvedArray[position(lowerRow +i, lowerCol +i)]) return false
+                }
+
             }
             1 -> {
-                for( i in 0 until lowerRow - higherRow -1)
+                for( i in 0 until   higherRow - lowerRow)
                     if (!gameSolvedArray[position(lowerRow +i, lowerCol -i)]) return false
             }
             else -> {
