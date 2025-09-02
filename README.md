@@ -11,29 +11,26 @@
 ## Overview
 
 This project is inspired by NumberMatch, a simple mobile game with the goal of emptying the gameboard by matching numbers. \
-However, I have found some flaws with the game design, advertisement use and gaming experience of the original app, which have motivated me enough to rebuild the game myself from scratch to address these issues.
+However, I have found some flaws with the game design, advertisement use and gaming experience of the original app, which have motivated me enough to rebuild the game myself from scratch to address these issues.\
 
-<!-- TODO: Add a screenshot of the live project.
-    1. Link to a 'live demo.'
-    2. Describe your overall experience in a couple of sentences.
-    3. List a few specific technical things that you learned or improved on.
-    4. Share any other tips or guidance for others attempting this or something similar.
- -->
+<img width="375" height="842" alt="image" src="https://github.com/user-attachments/assets/297ae489-c6a7-46f7-95a1-61aa5b571d2d" />
 
+This work in progress has been a nice warm-up after some time not programming due to my masters in Interaction Design. It reawakened my love for programming and a fun addition to my portfolio.
 
 ### Built With
 
 - Kotlin
   https://kotlinlang.org/
-- Compose
+- Compose (currently being introduced)
   https://developer.android.com/compose
-<!-- TODO: List any MAJOR libraries/frameworks (e.g. React, Tailwind) with links to their homepages. -->
-
-
-<!-- TODO: List what specific 'user problems' that this application solves. -->
 
 ## Contact
 
+Linkedin:\
+www.linkedin.com/in/miriam-pia-kagerer-6a1759249\
+\
+or at \
+miriam.kagerer@gmail.com
 <!-- TODO: Include icons and links to your RELEVANT, PROFESSIONAL 'DEV-ORIENTED' social media. LinkedIn and dev.to are minimum. -->
 
 ## Acknowledgements
