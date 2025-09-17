@@ -15,7 +15,9 @@ import kotlin.random.Random
 
 
 class BoardView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
-
+    var points = 0
+    private var nextEarnedPoints = 0
+    private var currentLevel = 1
     private var numbersPerRow = 10
     private var rowCount = 10
     private var numberCount = -1
@@ -237,6 +239,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                     fillCell(canvas, selectedRow, selectedCol, correctSelectionPaint)
                     rewritePreviousText(canvas, solvedTextPaint)
                     unselectCells()
+                    points += nextEarnedPoints
+                    Log.d("Points", nextEarnedPoints.toString())
+                    Log.d("Points", points.toString())
                 }
                 1 -> { // CASE: wrong combo
                     matchFound = false
@@ -443,6 +448,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
         if(checkBetweenHor()) {
             typeBasicMatch = true
+            nextEarnedPoints = 1 * currentLevel
             return true
         }
         return false
@@ -453,6 +459,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
 
         if (checkBetweenVer()) {
             typeBasicMatch = true
+            nextEarnedPoints = 4 * currentLevel
             return true
         }
         return false
@@ -486,6 +493,13 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         return solution
     }
 
+    /**
+     * Checks if a correct Diagonal Match is present
+     *
+     * Return:
+     * - false: no diagonal match
+     * - true: yes diagonal match
+     */
     private fun checkDiagonalMatch(): Boolean {
         val lowerRow = min(prevSelectedRow, selectedRow)+1
         val higherRow = max(prevSelectedRow, selectedRow)
@@ -512,9 +526,17 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         }
 
         typeBasicMatch = true
+        nextEarnedPoints = 4 * currentLevel
         return true
     }
 
+    /**
+     * Checks if a correct line overrun Match is present
+     *
+     * Return:
+     * - false: no match
+     * - true: yes match
+     */
     private fun checkOverrun(): Boolean {
         if (prevSelectedRow - selectedRow == 1){
             for (i in selectedCol+1 until numbersPerRow){
@@ -523,7 +545,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             for (i in 0 until prevSelectedCol){
                 if (!gameSolvedArray[position(prevSelectedRow,i)]) return false
             }
+
             typeBasicMatch = false
+            nextEarnedPoints = 6 * currentLevel
             return true
 
         } else if (selectedRow - prevSelectedRow == 1) {
@@ -533,7 +557,9 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
             for (i in 0 until selectedCol){
                 if (!gameSolvedArray[position(selectedRow,i)]) return false
             }
+
             typeBasicMatch = false
+            nextEarnedPoints = 6 * currentLevel
             return true
         }
         return false
@@ -569,6 +595,8 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                 }
             }
             if (removeRow) {
+                nextEarnedPoints += 10
+                Log.d("Line removed Points", nextEarnedPoints.toString())
                 removeRow(i)
             }
         }
