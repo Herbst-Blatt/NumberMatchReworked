@@ -8,10 +8,10 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import androidx.core.graphics.toColorInt
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import androidx.core.graphics.toColorInt
 
 
 class BoardView(context: Context, attributeSet: AttributeSet): View(context, attributeSet) {
@@ -102,6 +102,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
     }
 
     private fun onCreate(){
+        
         fillGameNumberArray()
     }
 
@@ -128,7 +129,6 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         fillCells(canvas)
         checkRemoveRow()
     }
-
 
     /**
      * Upon start of the game, generates random numbers to fill game with
@@ -212,7 +212,6 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
         val paint: Paint = if (gameSolvedArray[position(r, c)]){
             solvedTextPaint
         } else {
-            
             textPaint
         }
 
@@ -239,6 +238,7 @@ class BoardView(context: Context, attributeSet: AttributeSet): View(context, att
                     fillCell(canvas, selectedRow, selectedCol, correctSelectionPaint)
                     rewritePreviousText(canvas, solvedTextPaint)
                     unselectCells()
+
                     points += nextEarnedPoints
                     Log.d("Points", nextEarnedPoints.toString())
                     Log.d("Points", points.toString())

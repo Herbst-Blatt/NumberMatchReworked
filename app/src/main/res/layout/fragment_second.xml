@@ -64,7 +64,7 @@
             app:layout_constraintTop_toBottomOf="@+id/boardView" />
 
         <TextView
-            android:id="@+id/game"
+            android:id="@+id/textView_game_points"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"

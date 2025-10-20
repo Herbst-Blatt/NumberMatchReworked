@@ -5,17 +5,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.numbermatchreworked.databinding.FragmentSecondBinding
-
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
 class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
-
-
+    lateinit var viewModel: Board_ViewModel
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -25,6 +25,10 @@ class SecondFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel = ViewModelProvider(this)[Board_ViewModel::class.java]
+        viewModel.points.observe(viewLifecycleOwner,{ points ->
+            binding.textViewGamePoints.text = points.toString()
+        })
 
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
         return binding.root
