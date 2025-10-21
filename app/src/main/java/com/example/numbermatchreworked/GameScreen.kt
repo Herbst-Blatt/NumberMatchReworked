@@ -111,6 +111,11 @@ fun GameScreen(
             Spacer(modifier = Modifier.padding(all = 10.dp))
 
             IconButton(onClick = {
+                navController.navigate("levelup_screen")
+
+
+
+
 
             },
                 modifier = Modifier

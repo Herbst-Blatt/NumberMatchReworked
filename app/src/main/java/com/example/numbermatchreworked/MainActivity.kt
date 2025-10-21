@@ -23,12 +23,15 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "game_screen") {
-        composable("home_screen") {
+    NavHost(navController = navController, startDestination = "home_screen") {
+        composable(route ="home_screen") {
             HomeScreen(navController = navController)
         }
-        composable("game_screen") {
+        composable(route = "game_screen") {
             GameScreen(navController = navController)
+        }
+        composable(route = "levelup_screen") {
+            LevelUpScreen(navController = navController)
         }
     }
 }
