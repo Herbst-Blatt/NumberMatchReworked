@@ -17,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +36,8 @@ fun GameScreen(
     gLogic: GameLogic = GameLogic()
 ) {
     //val points by gLogic.points.observeAsState()
+    var levelup by remember{ mutableIntStateOf(0) }
+
     Column(
         modifier = Modifier
             .padding(all = 10.dp)

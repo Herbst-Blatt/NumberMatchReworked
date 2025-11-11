@@ -12,9 +12,9 @@ import kotlin.random.Random
 
 class GameLogic: ViewModel() {
 
-    //private val _points = MutableLiveData(0)
-    //val points: LiveData<Int> = _points
-    var points = 0
+    private val _points = MutableLiveData(0)
+    val points: LiveData<Int> = _points
+    //var points = 0
 
     //private var _invalidations = MutableStateFlow(0)
     //var logicInvalidations = _invalidations.asStateFlow()
@@ -40,6 +40,7 @@ class GameLogic: ViewModel() {
     //var matchFound = false
     var typeBasicMatch = true
     private var cellsPerRow = 9 // duplicate, that's bad
+
 
     var selection = "none" // "none" "first" "correct" "wrong" "hint"// TODO
 
@@ -121,9 +122,9 @@ class GameLogic: ViewModel() {
             gameSolvedArray[selectedRow * cellsPerRow + selectedCol] = true
 
             if (typeBasicMatch) {
-                points += 1 * level
+                _points.postValue(_points.value?.plus(1 * level))
             } else {
-                points += 3 * level
+                _points.postValue(_points.value?.plus(1 * level))
             }
         }
     }
@@ -291,13 +292,36 @@ class GameLogic: ViewModel() {
     public fun getHintsButtonClick(): IntArray {
         for (i in gameNumberArray) {
             if (!gameSolvedArray[i]) {
-                if (checkPositions(i, i + 1)) return intArrayOf(i, i + 1) // right
+                val posRight = checkToRight(i)
+                if (checkPositions(i, posRight)) return intArrayOf(i, posRight) // right
+                val posDown = checkDown(i)
+                if (checkPositions(i, posDown)) return intArrayOf(i, posDown) // down
                 if (checkPositions(i, i + 1 + cellsPerRow)) return intArrayOf(i, i + 1 + cellsPerRow) // right down
-                if (checkPositions(i, i + cellsPerRow)) return intArrayOf(i, i + cellsPerRow) // down
+
+                //left down
             }
         }
         return intArrayOf(-1, -1)
     }
+
+    private fun checkToRight(position:Int): Int {
+        var pos = position
+        while(pos < numberCount && gameSolvedArray[pos]){
+            pos+=1
+        }
+        return pos
+    }
+
+    private fun checkDown(position: Int): Int {
+        var pos = position
+        while(pos < numberCount && gameSolvedArray[pos]){
+            pos+= cellsPerRow
+        }
+        return pos
+    }
+    //private fun checkDiaRight(position: Int): Int {
+
+    //}
 
     private fun getValidNumber(pos: Int): Int {
         if (pos >= numberCount || pos < 0) return -1
@@ -357,7 +381,7 @@ class GameLogic: ViewModel() {
 
     private fun checkWin() {
         if (numberCount == 0){
-            Log.d("TAG", "WIN")
+
         }
     }
 }
