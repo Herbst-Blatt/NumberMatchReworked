@@ -50,12 +50,62 @@ class GameLogic: ViewModel() {
 
 
         for (i in 0 until numberCount) {
-            gameNumberArray += Random.nextInt(1, 10)
             gameSolvedArray += false
             gameBlockArray += false
+            addRandomToNumberArray(i)
         }
     }
 
+    /**
+     * Adds one random number to the number array; makes repeating and fitting numbers less likely
+     */
+    private fun addRandomToNumberArray(arrayPos: Int) {
+        var deleteMe = gameNumberArray
+        var nextRand = Random.nextInt(1, 10)
+        var generateNewRand = false
+        while(true){
+            if (getValidNumber(arrayPos -1) != -1){
+                if (nextRand == gameNumberArray[arrayPos- 1] || nextRand + gameNumberArray[arrayPos-1] == 10){
+                    if(Random.nextInt(1, 100) > 5){ // if a match exists, it should likely  be generated new
+                        generateNewRand = true
+                    }
+                }
+            }
+
+            if(getValidNumber(arrayPos - cellsPerRow) != -1){
+                if (nextRand == gameNumberArray[arrayPos - cellsPerRow] || nextRand + gameNumberArray[arrayPos - cellsPerRow] == 10){
+                    if(Random.nextInt(1, 100) > 5){ //
+                        generateNewRand = true
+                    }
+                }
+            }
+
+
+            if(getValidNumber(arrayPos - cellsPerRow -1) != -1){
+                if (nextRand == gameNumberArray[arrayPos - cellsPerRow -1] || nextRand + gameNumberArray[arrayPos - cellsPerRow -1] == 10){
+                    if(Random.nextInt(1, 100) > 5){ //
+                        generateNewRand = true
+                    }
+                }
+            }
+
+            if(getValidNumber(arrayPos - cellsPerRow +1) != -1){
+                if (nextRand == gameNumberArray[arrayPos - cellsPerRow +1] || nextRand + gameNumberArray[arrayPos - cellsPerRow +1] == 10){
+                    if(Random.nextInt(1, 100) > 5){ //
+                        generateNewRand = true
+                    }
+                }
+            }
+
+            if(generateNewRand){
+                nextRand = Random.nextInt(1, 10)
+                generateNewRand = false
+            } else {
+                gameNumberArray += nextRand
+                break
+            }
+        }
+    }
 
 
     fun onCLick(offset: Offset, cellSizePixels: Float) {

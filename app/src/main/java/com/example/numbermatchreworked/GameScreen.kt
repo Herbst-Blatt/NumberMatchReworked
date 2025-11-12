@@ -93,6 +93,12 @@ fun GameScreen(
 
         GameCanvas(gLogic)
 
+        //gLogic.points.observe(lifecycleowner) { points ->
+        //
+        // }
+        // https://stackoverflow.com/questions/70490166/mutablelivedata-value-not-updating-confusion
+        // TODO
+
         Row(modifier = Modifier
             .padding(all = 20.dp)
             .fillMaxSize()
