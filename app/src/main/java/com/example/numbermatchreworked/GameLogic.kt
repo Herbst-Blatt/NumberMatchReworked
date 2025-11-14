@@ -60,7 +60,6 @@ class GameLogic: ViewModel() {
      * Adds one random number to the number array; makes repeating and fitting numbers less likely
      */
     private fun addRandomToNumberArray(arrayPos: Int) {
-        var deleteMe = gameNumberArray
         var nextRand = Random.nextInt(1, 10)
         var generateNewRand = false
         while(true){
@@ -107,7 +106,9 @@ class GameLogic: ViewModel() {
         }
     }
 
-
+    /**
+     * Handles onclick events
+     */
     fun onCLick(offset: Offset, cellSizePixels: Float) {
         if (selection == "correct" || selection == "wrong") {
             unselectCells()
@@ -159,6 +160,9 @@ class GameLogic: ViewModel() {
         selectedNr = -1
     }
 
+    /**
+     * Determines which cells need to be highlighted and removes old highlights
+     */
     private fun determineCellHighlights() {
         if (selectedCol == prevSelectedCol && selectedRow == prevSelectedRow) {
             selection = "none"
@@ -171,7 +175,7 @@ class GameLogic: ViewModel() {
             gameSolvedArray[prevSelectedRow * cellsPerRow + prevSelectedCol] = true
             gameSolvedArray[selectedRow * cellsPerRow + selectedCol] = true
 
-            if (typeBasicMatch) {
+            if (typeBasicMatch) { // TODO MOVE
                 _points.postValue(_points.value?.plus(1 * level))
             } else {
                 _points.postValue(_points.value?.plus(1 * level))

@@ -1,7 +1,6 @@
 package com.example.numbermatchreworked
 
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -139,7 +138,7 @@ fun GameCanvas(gLogic: GameLogic) {
                     (gLogic.selectedRow + 0.5F) * cellSizePixels
                 ),
                 strokeWidth = 10F,
-                color = selectionColor
+                color = lineColor
             )
         } else {
             val higherRow = max(gLogic.selectedRow, gLogic.prevSelectedRow)
@@ -164,7 +163,7 @@ fun GameCanvas(gLogic: GameLogic) {
                     (lowerRow + 0.5F) * cellSizePixels
                 ),
                 strokeWidth = 10F,
-                color = selectionColor
+                color = lineColor
             )
             this.drawLine(
                 start = Offset(
@@ -176,7 +175,7 @@ fun GameCanvas(gLogic: GameLogic) {
                     (higherRow + 0.5F) * cellSizePixels
                 ),
                 strokeWidth = 10F,
-                color = selectionColor
+                color = lineColor
             )
         }
     }

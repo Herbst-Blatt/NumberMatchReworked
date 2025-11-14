@@ -1,12 +1,10 @@
 package com.example.numbermatchreworked
 
-import android.graphics.Paint
+import androidx.compose.material3.ButtonColors
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 
 
 var fontSize = 22.sp
@@ -33,10 +31,19 @@ val correctTextStyle = TextStyle(
     fontWeight = FontWeight.Bold
 )
 
-val selectionColor = Color(0xFFC9A0DC)
+val lineColor = Color(0x66000000)
 
-val correctionSelectionColor = Color(0xFF84DB4D)
+val correctionSelectionColor = Color(0xFFC9A0DC)
+
+val selectionColor = Color(0xFFC9A0DC)
 
 val wrongSelectionColor = Color(0xFFBA3D25)
 
 val hintColor = Color(0xFF89CFF0)
+
+val buttonColor = ButtonColors(
+    containerColor = selectionColor,
+    contentColor = Color(0xFF000000),
+    disabledContainerColor = Color(0xFF7B7B7D),
+    disabledContentColor = Color(0xFF000000)
+)
